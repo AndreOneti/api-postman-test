@@ -1,0 +1,216 @@
+{
+	"info": {
+		"_postman_id": "94a9505f-d3db-47a4-8358-a6f7d4b6c604",
+		"name": "Automatic_API_test_Product",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get All users and products",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "536e915c-c266-4db5-b611-577c0f64678a",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All products",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3c71cbeb-de13-4225-a751-79d21ad33664",
+						"exec": [
+							"pm.test(\"Get all products return 200 OK\", () => {\r",
+							"  return pm.response.to.have.status(200)\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Get all products\", () => {\r",
+							"  let { products } = pm.response.json();\r",
+							"  return Array.isArray(products);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/product",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"product"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add new product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b994693d-a565-425f-8bc4-a0aaac4330fd",
+						"exec": [
+							"pm.test(\"Add new product return 200 OK\", () => {\r",
+							"  return pm.response.to.have.status(201)\r",
+							"});\r",
+							"\r",
+							"var { product } = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Verify Json values\", function () {\r",
+							"  pm.expect(product.name).is.to.equal(\"Mouse\");\r",
+							"  pm.expect(product.category).is.to.equal(\"eletronic\");\r",
+							"  pm.expect(product._id).is.to.greaterThan(0)\r",
+							"  pm.globals.set('_id', product._id)\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Mouse\",\r\n    \"category\": \"eletronic\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/product",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"product"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b789b4d1-e1c0-469e-bf58-95054a91799f",
+						"exec": [
+							"pm.test(\"Add new users return 200 OK\", () => {\r",
+							"  return pm.response.to.have.status(200)\r",
+							"});\r",
+							"\r",
+							"var { product } = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Verify Json values\", function () {\r",
+							"  pm.expect(product.name).is.to.equal(\"Mouse\");\r",
+							"  pm.expect(product.category).is.to.equal(\"eletronic\");\r",
+							"  var _id = pm.globals.get('_id');\r",
+							"  pm.expect(product._id).is.to.equal(_id)\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0d300631-695e-4277-b7e6-52dcc939a4be",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": {{_id}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/product",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"product"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "9a5c3df1-4256-45b9-a1dc-e66ad4860a98",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "cd0e5bdf-ae74-4e87-a35e-dcd06b6f5289",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
