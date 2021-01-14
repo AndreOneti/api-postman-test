@@ -50,6 +50,7 @@ runOne(){
 	collection=$1
 	number=${collection:2:1}
 	baseName=${collection%_postman_collection.json}
+	baseName=${baseName%.postman_collection.json}
 	name=${baseName:2}
 	displayName=$number" "$name
 

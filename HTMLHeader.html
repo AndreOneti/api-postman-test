@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Postman - Reports</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script type="text/javascript">
+        //custom script
+        $(function(){
+            $('.panel').filter(function(){ return $('.tego-bg-red', this).length})
+                    .find('.panel-heading')
+                    .removeClass('tego-bg-green')
+                    .addClass('tego-bg-red')
+        })
+  </script>
+    <style>
+        .tego-bg-red .panel-title, .tego-bg-green .panel-title {
+            color: #fff;
+        }
+        .tego-bg-red {
+            background-color: #e74c3c !important;
+        }
+        .tego-bg-green {
+            background-color: #27ae60 !important;
+        }
+        .tego-color-red {
+            color: #c0392b;
+            font-weight: bold;
+        }
+        .tego-color-green {
+            color: #27ae60;
+            font-weight: bold;
+        }
+    </style>
+</head>
