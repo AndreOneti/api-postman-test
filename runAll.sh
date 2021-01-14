@@ -31,6 +31,7 @@ exec_checkNewman
 DATE_REPORT=`date +%Y-%m-%d_%H-%M-%S`
 ROOT=`pwd`
 LOG=$ROOT/result
+POSTMAN=$ROOT/Environment
 FAILED_DIR=$LOG/failedCollections
 HTML_JSON=$FAILED_DIR/html-json
 TOTAL_DIR_ALLOW=1
@@ -40,7 +41,7 @@ YELLOW=$(tput setaf 3)
 RESET=$(tput sgr0)
 
 mkdir -p $LOG        # in case it is the first time on a particular server
-mkdir -p $HTML_JSON
+# mkdir -p $HTML_JSON
 rm -f $LOG/*.json $LOG/*.html $LOG/*.xml $LOG/*.log $LOG/skipFiles.txt
 
 #-------------------------------------------------------------------------------
@@ -61,17 +62,18 @@ runOne(){
 	commitInfo=$(git log -1 --date=short --pretty=format:"Last commit by %an on %ad" -- $collection)
 	echo $commitInfo | tee -a $LOG/result.log
 	# newman run "$collection" -e $POSTMAN/Environment.json --suppress-exit-code --reporters cli,html,json,junit --reporter-json-export "$LOG/$name.json" --reporter-junit-export "$LOG/$name.xml" --reporter-html-export "$LOG/$name.html" | tee -a $LOG/result.log
-	newman run "$collection" --suppress-exit-code --reporters cli,html,json,junit --reporter-json-export "$LOG/$name.json" --reporter-junit-export "$LOG/$name.xml" --reporter-html-export "$LOG/$name.html" | tee -a $LOG/result.log
+	# newman run "$collection" --suppress-exit-code --reporters cli,html,json,junit --reporter-json-export "$LOG/$name.json" --reporter-junit-export "$LOG/$name.xml" --reporter-html-export "$LOG/$name.html" | tee -a $LOG/result.log
+	newman run "$collection" -e $POSTMAN/Environment.json --suppress-exit-code --reporters cli,json --reporter-json-export "$LOG/$name.json" | tee -a $LOG/result.log
 	echo -e Done with $displayName	$(date +'%F %H:%M:%S.%3N') | tee -a $LOG/result.log
 
     failedNum=$(egrep 'AssertionFailure|TypeError|SyntaxError' $LOG/result.log  | grep -v "in test-script" | wc -l)
     if [ ! -z "$failedNum" ] && [ "$failedNum" != 0 ]
 	  then
-	    cp $LOG/$name.html $LOG/$name.json $HTML_JSON/
+	    # cp $LOG/$name.html $LOG/$name.json $HTML_JSON/
 	    name_mod=$(echo $name | awk -F '.postman_collection' '{print $1}')
 		namenoslash=$(echo $name | awk -F/ '{print $NF}')
-	    cp $LOG/result.log $FAILED_DIR/"$namenoslash".error
-		echo " - "$name_mod" - TOTAL FAILED: $failedNum" >> $FAILED_DIR/000_COLLECTIONS_FAILED_SUMMARY_"$DATE_REPORT".log
+	    # cp $LOG/result.log $FAILED_DIR/"$namenoslash".error
+		# echo " - "$name_mod" - TOTAL FAILED: $failedNum" >> $FAILED_DIR/000_COLLECTIONS_FAILED_SUMMARY_"$DATE_REPORT".log
     fi
 
 	cat $LOG/result.log >> $LOG/console.log
@@ -96,4 +98,4 @@ do
 	nIndex=`expr index "$line" $'\t'`
 	runOne ${line:$nIndex}
 done
-echo "" >> $FAILED_DIR/000_COLLECTIONS_FAILED_SUMMARY_"$DATE_REPORT".log
+# echo "" >> $FAILED_DIR/000_COLLECTIONS_FAILED_SUMMARY_"$DATE_REPORT".log

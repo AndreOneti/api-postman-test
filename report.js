@@ -12,12 +12,14 @@ const {
   writeFileSync,
   readFileSync,
   readdirSync,
+  existsSync,
 } = require('fs');
 
 require('dot_functions_utils');
 
 const BASE_PATH = "./result";
-const REPORT_NAME = "Regression Test";
+const EXECUTION_NAME = "Microsercies API Test";
+const REPORT_NAME = process.env.REPORT_NAME || "Report";
 
 var RedBar = 0;
 var GreenBar = 0;
@@ -49,7 +51,7 @@ const files = readdirSync(BASE_PATH, { encoding: "utf-8" });
 const filteredFiles = files.filter(file => file.includes(".json"));
 
 finalHTML = fileReader('./HTMLHeader.html');
-finalHTML += `\n<body><div class="container">\n<h1>${REPORT_NAME}</h1><br><h4><strong>Test Case results</strong></h4>`;
+finalHTML += `\n<body><div class="container">\n<h1>${EXECUTION_NAME}</h1><br><h4><strong>Test Case results</strong></h4>`;
 
 const { total, failed, success } = filteredFiles.reduce((prev, next) => {
   const data = fileReader(`${BASE_PATH}/${next}`);
@@ -59,6 +61,13 @@ const { total, failed, success } = filteredFiles.reduce((prev, next) => {
   prev.success += (JSONDATA.run.stats.assertions.total - JSONDATA.run.stats.assertions.failed);
   return prev;
 }, { total: 0, failed: 0, success: 0 });
+
+if (existsSync(`${BASE_PATH}/skipFiles.txt`)) {
+  let data = fileReader(`${BASE_PATH}/skipFiles.txt`);
+  data.trim().split('\n').forEach(item => {
+    missing.push(item.replace(/.. FILE NAME WITH SPACE IN PATH NOT PROCESSED: .\//, ''));
+  });
+}
 
 let successPercent = 0;
 let failedPercent = 0;
@@ -143,7 +152,7 @@ filteredFiles.forEach((file, index) => {
   <div class="panel-heading tego-bg-${bgColor}" role="tab" id="requestHead-H${CollectionNumber}">
   <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#requestData-H${CollectionNumber}" aria-controls="collapseOne" aria-expanded="true"><strong>Collection : ${JSONDATA.collection.info.name}<br>[Pass Rate ${success}% / Passed ${total - failed} / Total ${total}] [Execution time ${executionTime}ms]</strong></a></h4>
   </div>
-  <div id="requestData-H${CollectionNumber}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="requestHead-H${CollectionNumber}" aria-expanded="true" style="">
+  <div id="requestData-H${CollectionNumber}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="requestHead-H${CollectionNumber}" aria-expanded="true">
   <div class="panel-body">
   <div class="row">
   <div class="col-md-3">Time</div><div class="col-md-9">${JSONDATA.collection.info.name} ${(new Date(JSONDATA.run.timings.started)).toFormat("YYYY-MM-DD HR:MN:SC")}</div>
@@ -183,7 +192,7 @@ filteredFiles.forEach((file, index) => {
     <div class="col-md-4">URL</div><div class="col-md-8"><a href="${href}" target="_blank">${href}</a></div>
     <div class="col-md-12">&nbsp;</div>
     <div class="col-md-4">Mean time per request</div><div class="col-md-8">${(executed.response || {}).responseTime || "0"}ms</div><br>
-    <div class="col-md-4">Mean size per request</div><div class="col-md-8">${JSONDATA.run.transfers.responseTotal}B</div><br>
+    <div class="col-md-4">Mean size per request</div><div class="col-md-8">${executed.response.responseSize || JSONDATA.run.transfers.responseTotal}B</div><br>
     <div class="col-md-12">&nbsp;</div>
     <br><div class="col-md-4">Total passed tests</div><div class="col-md-8">${(executed.assertions || []).filter(item => !item.error).length}</div>
     <div class="col-md-4">Total failed tests</div><div class="col-md-8">${(executed.assertions || []).filter(item => item.error).length}</div><br>
@@ -280,7 +289,7 @@ BlackBarHtml = `${"&nbsp;".repeat(pass)}${BlackPercent}%`;
 GreenPercent = parseInt(100 * GreenBar / CollectionNumber);
 if (missing.length > 0) {
   if (GreenPercent < 10) pass = GreenPercent + 1;
-  else pass = GreenPercent - 3;
+  else pass = GreenPercent - 1;
   GreenBarHtml = `${"&nbsp;".repeat(pass)}${GreenPercent}%`;
 } else {
   if (GreenPercent < 10) pass = GreenPercent + 1;
@@ -296,4 +305,4 @@ if (missing.length > 0) {
 }
 finalHTML = finalHTML.replace(/ReplaceBar/, Bar);
 
-writeFileSync('./result.html', finalHTML, { encoding: "utf-8" });
+writeFileSync(`./${REPORT_NAME}.html`, finalHTML, { encoding: "utf-8" });
