@@ -17,7 +17,7 @@ const {
 
 require('dot_functions_utils');
 
-const BASE_PATH = "./result";
+const BASE_PATH = "./reporte";
 const EXECUTION_NAME = "Microsercies API Test";
 const REPORT_NAME = process.env.REPORT_NAME || "Report";
 
@@ -65,7 +65,8 @@ const { total, failed, success } = filteredFiles.reduce((prev, next) => {
 if (existsSync(`${BASE_PATH}/skipFiles.txt`)) {
   let data = fileReader(`${BASE_PATH}/skipFiles.txt`);
   data.trim().split('\n').forEach(item => {
-    missing.push(item.replace(/.. FILE NAME WITH SPACE IN PATH NOT PROCESSED: .\//, ''));
+    // missing.push(item.replace(/.. FILE NAME WITH SPACE IN PATH NOT PROCESSED: .\//, ''));
+    missing.push(item);
   });
 }
 
@@ -74,19 +75,19 @@ let failedPercent = 0;
 let successSpaces = 0;
 let failedSpaces = 0;
 
-successPercent = 100 * success / total;
+successPercent = Math.round(100 * success / total);
 failedPercent = 100 - successPercent;
 
 if (successPercent > 9) {
-  successSpaces = parseInt(112 * successPercent / 100 - 2);
+  successSpaces = parseInt(113 * successPercent / 100 - 2);
 } else {
-  successSpaces = parseInt(112 * successPercent / 100 - 1);
+  successSpaces = parseInt(113 * successPercent / 100 - 1);
 }
 
 if (failedPercent > 9) {
-  failedSpaces = parseInt(112 * failedPercent / 100 - 3);
+  failedSpaces = parseInt(113 * failedPercent / 100 - 3);
 } else {
-  failedSpaces = parseInt(112 * failedPercent / 100 - 2);
+  failedSpaces = parseInt(113 * failedPercent / 100 - 2);
 }
 
 successSpaces = successSpaces < 0 ? 1 : successSpaces;
@@ -132,7 +133,7 @@ filteredFiles.forEach((file, index) => {
     let total = JSONDATA.run.stats.assertions.total;
     let failed = JSONDATA.run.stats.assertions.failed;
     let success = total - failed;
-    success = 100 * success / total;
+    success = Math.round(100 * success / total);
     if (success >= 95) {
       GreenBar++;
       bgColor = "green";
@@ -266,27 +267,27 @@ finalHTML = finalHTML.replace(/MissingCollection/, MissingCollection);
 
 let pass = 0;
 
-RedPercent = parseInt(100 * RedBar / CollectionNumber);
+RedPercent = Math.round(100 * RedBar / CollectionNumber);
 if (RedPercent < 10) pass = RedPercent + 1;
 else pass = RedPercent;
 RedBarHtml = `${"&nbsp;".repeat(pass)}${RedPercent}%`;
 
-OrangePercent = parseInt(100 * OrangeBar / CollectionNumber);
+OrangePercent = Math.round(100 * OrangeBar / CollectionNumber);
 if (OrangePercent < 10) pass = OrangePercent + 1;
 else pass = OrangePercent;
 OrangeBarHtml = `${"&nbsp;".repeat(pass)}${OrangePercent}%`;
 
-YellowPercent = parseInt(100 * YellowBar / CollectionNumber);
+YellowPercent = Math.round(100 * YellowBar / CollectionNumber);
 if (YellowPercent < 10) pass = YellowPercent + 1;
 else pass = YellowPercent;
 YellowBarHtml = `${"&nbsp;".repeat(pass)}${YellowPercent}%`;
 
-BlackPercent = parseInt(100 * BlackBar / CollectionNumber);
+BlackPercent = Math.round(100 * BlackBar / CollectionNumber);
 if (BlackPercent < 10) pass = BlackPercent + 1;
 else pass = BlackPercent;
 BlackBarHtml = `${"&nbsp;".repeat(pass)}${BlackPercent}%`;
 
-GreenPercent = parseInt(100 * GreenBar / CollectionNumber);
+GreenPercent = Math.round(100 * GreenBar / CollectionNumber);
 if (missing.length > 0) {
   if (GreenPercent < 10) pass = GreenPercent + 1;
   else pass = GreenPercent - 1;
@@ -299,8 +300,14 @@ if (missing.length > 0) {
 
 let Bar = "";
 if (missing.length > 0) {
+  let sum = BlackBarHtml + RedBarHtml + OrangeBarHtml + YellowBarHtml + GreenBarHtml;
+  sum = sum.replace(/&nbsp;/g, " ");
+  if (sum.length < 113) GreenBarHtml = "&nbsp;".repeat(113 - sum.length) + GreenBarHtml;
   Bar = `<h4><span style="font-family: monospace, monospace; margin:0; color: #ffffff; background-color: #000000">${BlackBarHtml}</span><span style="font-family: monospace, monospace; margin:0; color: #ffffff; background-color: #e74c3c">${RedBarHtml}</span><span style="font-family: monospace, monospace; margin:0; color: #ffffff; background-color: #ff9900">${OrangeBarHtml}</span><span style="font-family: monospace, monospace; margin:0; color: #000000; background-color: #ffff00">${YellowBarHtml}</span><span style="font-family: monospace, monospace; margin:0; color: #ffffff; background-color: #27ae60">${GreenBarHtml}</span></h4>`;
 } else {
+  let sum = RedBarHtml + OrangeBarHtml + YellowBarHtml + GreenBarHtml;
+  sum = sum.replace(/&nbsp;/g, " ");
+  if (sum.length < 113) GreenBarHtml = "&nbsp;".repeat(113 - sum.length) + GreenBarHtml;
   Bar = `<h4><span style="font-family: monospace, monospace; margin:0; color: #ffffff; background-color: #e74c3c">${RedBarHtml}</span><span style="font-family: monospace, monospace; margin:0; color: #ffffff; background-color: #ff9900">${OrangeBarHtml}</span><span style="font-family: monospace, monospace; margin:0; color: #000000; background-color: #ffff00">${YellowBarHtml}</span><span style="font-family: monospace, monospace; margin:0; color: #ffffff; background-color: #27ae60">${GreenBarHtml}</span></h4>`;
 }
 finalHTML = finalHTML.replace(/ReplaceBar/, Bar);

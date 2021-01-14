@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "75295fb2-693c-4a22-b2f6-3e366a9707bb",
-		"name": "Automatic_API_test_User",
+		"name": "Automatic_API_test_User copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -45,7 +45,7 @@
 						"id": "a5e6aa6c-00ba-4b8f-a154-95cee1b180fb",
 						"exec": [
 							"pm.test(\"Get all users return 200 OK\", () => {\r",
-							"  return pm.response.to.have.status(200)\r",
+							"  return pm.response.to.have.status(201)\r",
 							"});\r",
 							"\r",
 							"pm.test(\"Get all users\", () => {\r",
