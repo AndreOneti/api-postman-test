@@ -8,18 +8,13 @@
  * #################################################################################################
  */
 
-const {
-  writeFileSync,
-  readFileSync,
-  readdirSync,
-  existsSync,
-} = require('fs');
-
+const { writeFileSync, readFileSync, readdirSync, existsSync } = require('fs');
+const { createPanelItem } = require('./utils');
 require('dot_functions_utils');
 
-const BASE_PATH = "./reporte";
-const EXECUTION_NAME = "Microsercies API Test";
+const BASE_PATH = process.env.BASE_PATH || "./report";
 const REPORT_NAME = process.env.REPORT_NAME || "Report";
+const EXECUTION_NAME = process.env.EXECUTION_NAME || "Microservices API Test";
 
 var RedBar = 0;
 var GreenBar = 0;
@@ -171,46 +166,7 @@ filteredFiles.forEach((file, index) => {
   <div class="panel-group" id="collapse-request-H'${CollectionNumber}'P'${TableNumber}'" role="tablist" aria-multiselectable="true">`;
 
     JSONDATA.run.executions.forEach(executed => {
-      let {
-        protocol,
-        host,
-        port,
-        path
-      } = executed.request.url;
-
-      let href = `${protocol}://${host.join()}${port ? ":" : ""}${port}/${path.join("/")}`;
-
-      finalHTML += `<div class="panel-group" id="collapse-request-H${CollectionNumber}P${TableNumber}" role="tablist" aria-multiselectable="true">
-    <div class="panel panel-default">
-    <div class="panel-heading tego-bg-${(executed.assertions || []).some(item => item.error) && "red" || "green"}" role="tab" id="requestHead-H${CollectionNumber}P${TableNumber}">
-    <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#requestData-H${CollectionNumber}P${TableNumber}" aria-controls="collapseOne">${executed.item.name} (Passed ${(executed.assertions || []).filter(item => !item.error).length}/Failed ${(executed.assertions || []).filter(item => item.error).length})</a></h4>
-    </div>
-    <div id="requestData-H${CollectionNumber}P${TableNumber}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="requestHead-H${CollectionNumber}P${TableNumber}">
-    <div class="panel-body">
-    <div class="col-md-4">Description</div><div class="col-md-8" style="white-space: pre-wrap;"></div>
-    <div class="col-md-12">&nbsp;</div>
-    <div class="col-md-4">Method</div><div class="col-md-8">${executed.request.method}</div>
-    <div class="col-md-4">URL</div><div class="col-md-8"><a href="${href}" target="_blank">${href}</a></div>
-    <div class="col-md-12">&nbsp;</div>
-    <div class="col-md-4">Mean time per request</div><div class="col-md-8">${(executed.response || {}).responseTime || "0"}ms</div><br>
-    <div class="col-md-4">Mean size per request</div><div class="col-md-8">${executed.response.responseSize || JSONDATA.run.transfers.responseTotal}B</div><br>
-    <div class="col-md-12">&nbsp;</div>
-    <br><div class="col-md-4">Total passed tests</div><div class="col-md-8">${(executed.assertions || []).filter(item => !item.error).length}</div>
-    <div class="col-md-4">Total failed tests</div><div class="col-md-8">${(executed.assertions || []).filter(item => item.error).length}</div><br>
-    <div class="col-md-12">&nbsp;</div>
-    <br><div class="col-md-4">Status code</div><div class="col-md-8">${(executed.response || executed.requestError || {}).code || ""}</div><br>
-    <div class="col-md-12">&nbsp;</div>
-    <div class="col-md-4">Tests</div>
-    <div class="col-md-8">
-    <table class="table table-responsive table-condensed">
-    <thead><tr><th>Name</th><th>Pass count</th><th>Fail count</th></tr></thead>`;
-
-      (executed.assertions || []).forEach(item => {
-        if (item.error) finalHTML += `<tr><td>${item.assertion}</td><td>0</td><td>1</td></tr>`;
-        else finalHTML += `<tr><td>${item.assertion}</td><td>1</td><td>0</td></tr>`;
-      });
-
-      finalHTML += `</tbody></table></div></div></div></div></div>`;
+      finalHTML += createPanelItem(executed, CollectionNumber, TableNumber);
       TableNumber++;
     });
 
@@ -224,17 +180,6 @@ filteredFiles.forEach((file, index) => {
 
 if (missing.length > 0) {
   missingCollection = missing.length;
-
-  // finalHTML += `<div class="panel-group" id="collapse-request-M1" role="tablist" aria-multiselectable="true">
-  // <div class="panel panel-default">
-  // <div class="panel-heading tego-bg-black" role="tab" id="requestHead-M1">
-  // <h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#requestData-M1" aria-controls="collapseOne" aria-expanded="false" class="collapsed"><strong>Missing Collection<br>[Missing total ${missingCollection}]</strong></a></h4>
-  // </div>
-  // <div id="requestData-M1" class="panel-collapse collapse" role="tabpanel" aria-labelledby="requestHead-M1" aria-expanded="false" style="height: 0px;">
-  // <div class="panel-body">
-  // <h4><strong>File list provided for parsing listed ${missingCollection} files that didn't generated HTML Reports for analysis.</strong></h4>
-  // <h4><strong>Please check the Build.log for those requests.</strong></h4>
-  // <br><h4><strong>Collections</strong></h4>`;
 
   finalHTML += `<div class="panel-group" id="collapse-request-M1" role="tablist" aria-multiselectable="true">
   <div class="panel panel-default">
@@ -257,7 +202,7 @@ if (missing.length > 0) {
   missingCollection = 0;
 }
 
-finalHTML += `</div></div></div></div></div></body></html>`;
+finalHTML += `</div></body></html>`;
 
 let MissingCollection = missing.length > 1 ? `${missing.length} Collections` : `${missing.length} Collection`;
 

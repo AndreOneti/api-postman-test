@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "request": "node newman.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "report": "env REPORT_NAME='ERIBOX Report' node report.js",
     "request:report": "node newman.js && env REPORT_NAME='ERIBOX Report' node report.js"

@@ -1,10 +1,11 @@
-const newman = require('newman'); // require newman in your project
-const { readdirSync, rmdirSync } = require('fs');
-const { execSync } = require('child_process')
-
 require("dot_functions_utils");
+const newman = require('newman'); // require newman in your project
+const { execSync } = require('child_process');
+const { readdirSync, rmdirSync } = require('fs');
 
 rmdirSync(`./reporte`, { recursive: true });
+
+const FOLDER_NAME = process.env.FOLDER_NAME || "report";
 
 const files = readdirSync("./collection", { encoding: "utf-8" });
 
@@ -15,7 +16,7 @@ const executeNewman = collection => new Promise((resolve, reject) => {
     reporters: ['cli', 'json'],
     reporter: {
       json: {
-        export: `${__dirname}/reporte/${collection}`
+        export: `${__dirname}/${FOLDER_NAME}/${collection}`
       }
     }
   }, function (err) {
@@ -32,17 +33,3 @@ files.forEachSync(async collection => {
   commitInfo ? console.log(`\n${commitInfo}\n`) : console.log(`\nNo commit yet\n`);
   await executeNewman(collection);
 });
-
-// newman.run({
-//   collection: require(`./collection/${collection}`),
-//   environment: require('./Environment/Environment.json'),
-//   reporters: ['cli', 'json'],
-//   reporter: {
-//     json: {
-//       export: `${__dirname}/reporte/${collection}`
-//     }
-//   }
-// }, function (err) {
-//   if (err) { throw err; }
-//   console.log('collection run complete!');
-// });

@@ -18,6 +18,9 @@ app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use((_req, _res, next) => {
+  setTimeout(() => next(), parseInt(Math.random() * 1000));
+})
 
 // Router
 app.use(routes);
