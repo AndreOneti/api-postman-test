@@ -3,9 +3,9 @@ const newman = require('newman'); // require newman in your project
 const { execSync } = require('child_process');
 const { readdirSync, rmdirSync } = require('fs');
 
-rmdirSync(`./reporte`, { recursive: true });
-
 const FOLDER_NAME = process.env.FOLDER_NAME || "report";
+
+rmdirSync(`${__dirname}/${FOLDER_NAME}`, { recursive: true });
 
 const files = readdirSync("./collection", { encoding: "utf-8" });
 
@@ -13,10 +13,13 @@ const executeNewman = collection => new Promise((resolve, reject) => {
   newman.run({
     collection: require(`${__dirname}/collection/${collection}`),
     environment: require('./Environment/Environment.json'),
-    reporters: ['cli', 'json'],
+    reporters: ['cli', 'json', 'htmlextra'],
     reporter: {
       json: {
         export: `${__dirname}/${FOLDER_NAME}/${collection}`
+      },
+      htmlextra: {
+        export: `${__dirname}/${FOLDER_NAME}/${collection.replace(".json", ".html")}`
       }
     }
   }, function (err) {
